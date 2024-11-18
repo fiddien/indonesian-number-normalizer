@@ -11,7 +11,7 @@ setup(
     description="A package to convert numbers to Indonesian words",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Kecilin-Team/indonesian-number-normalizer",
+    url="https://github.com/fiddien/indonesian-number-normalizer",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
