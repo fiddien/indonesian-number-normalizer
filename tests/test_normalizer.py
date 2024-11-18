@@ -1,7 +1,7 @@
 """Tests for the Indonesian Number Normalizer package."""
 
 import pytest
-from ..indonesian_number_normalizer import create_normalizer
+from indonesian_number_normalizer import create_normalizer
 
 @pytest.fixture
 def normalizer():
