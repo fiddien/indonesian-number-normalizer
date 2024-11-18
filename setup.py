@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="indonesian-number-normalizer",
-    version="0.1.0",
+    version="0.1.1",
     author="Ilma Aliya Fiddien",
     author_email="ilmaaliyaf@gmail.com",
     description="A package to convert numbers to Indonesian words",
@@ -29,5 +29,5 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[],
-    keywords=["indonesian", "number", "converter", "text normalization", "tts"],
+    keywords=["indonesian", "number", "converter", "text normalization", "tts", "text-to-speech"],
 )
