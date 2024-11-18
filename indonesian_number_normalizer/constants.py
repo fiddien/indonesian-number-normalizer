@@ -32,10 +32,10 @@ CURRENCY_UNITS = {
 # Regular expressions for number detection
 PATTERNS = {
     'currency': r'Rp\s*\d+(?:\.\d{3})*(?:,\d{2})?',
-    'percentage': r'\d+(?:,\d+)?%',
+    'percentage': r'-?\d+(?:,\d+)?%',
     'time': r'\d{1,2}:\d{2}',
-    'decimal': r'\d+,\d+',
-    'integer': r'\d+(?:\.\d{3})*'
+    'decimal': r'-?\d+,\d+',
+    'integer': r'-?\d+(?:\.\d{3})*'
 }
 
 ORDINAL_SPECIAL = {

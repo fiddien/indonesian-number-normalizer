@@ -64,34 +64,32 @@ class IndonesianNumberNormalizer:
         return f"{prefix} {self._convert_tens(remainder)}"
 
     def number_to_words(self, number: Union[int, float]) -> str:
-        """Convert any number to Indonesian words.
-        
-        Args:
-            number: The number to convert (integer or float)
-            
-        Returns:
-            str: The number in Indonesian words
-            
-        Examples:
-            >>> normalizer = IndonesianNumberNormalizer()
-            >>> normalizer.number_to_words(1234)
-            'seribu dua ratus tiga puluh empat'
-            >>> normalizer.number_to_words(1.5)
-            'satu koma lima'
-        """
+        """Convert any number to Indonesian words."""        
+        # Handle scientific notation by converting to int if possible
         if isinstance(number, float):
-            integer_part, decimal_part = self._split_decimal(number)
+            if number.is_integer():
+                number = int(number)
+                integer_part = number
+                decimal_part = ""
+            else:
+                integer_part, decimal_part = self._split_decimal(number)
+                # Only add decimal part if it's not zero
+                if decimal_part.rstrip('0'):
+                    return f"{self.number_to_words(integer_part)} koma {' '.join(UNITS[int(d)] for d in decimal_part.rstrip('0'))}"
+                return self.number_to_words(integer_part)
         else:
             integer_part, decimal_part = number, ""
 
-        if integer_part == 0:
+        # Handle negative numbers first
+        prefix = ""
+        if integer_part < 0:
+            prefix = "minus "
+            integer_part = abs(integer_part)
+
+        if integer_part == 0 and not decimal_part:
             result = "nol"
         else:
             groups = []
-            if integer_part < 0:
-                groups.append("minus")
-                integer_part = abs(integer_part)
-
             if integer_part == 0:
                 groups.append("nol")
             else:
@@ -101,25 +99,28 @@ class IndonesianNumberNormalizer:
                 while current > 0:
                     group = current % 1000
                     if group != 0:
-                        prefix = self._convert_hundreds(group)
+                        prefix_word = self._convert_hundreds(group)
                         if group_idx > 0:
                             suffix = SCALES[group_idx]
                             if group == 1 and group_idx == 1:  # Special case for 1000
                                 groups.insert(0, f"se{suffix}")
                             else:
-                                groups.insert(0, f"{prefix} {suffix}")
+                                groups.insert(0, f"{prefix_word} {suffix}")
                         else:
-                            groups.insert(0, prefix)
+                            groups.insert(0, prefix_word)
                     current //= 1000
                     group_idx += 1
 
             result = " ".join(groups)
 
         if decimal_part:
-            decimal_words = " ".join(UNITS[int(d)] for d in decimal_part)
-            result += f" koma {decimal_words}"
+            # Handle leading zeros in decimal part
+            decimal_words = []
+            for d in decimal_part:
+                decimal_words.append(UNITS[int(d)])
+            result += f" koma {' '.join(decimal_words)}"
 
-        return result
+        return prefix + result
 
     def convert_currency(self, amount: Union[int, float], currency: str = "IDR") -> str:
         """Convert currency amounts to words.
@@ -147,9 +148,14 @@ class IndonesianNumberNormalizer:
         if all(d == '0' for d in decimal_str):
             return f"{main_words} {main_unit}"
             
-        decimal_words = self.number_to_words(int(decimal_str))
+        # Convert decimal part using proper tens format
+        decimal_val = int(decimal_str)
+        if decimal_val < 10:
+            decimal_val *= 10  # Convert single digit to tens
+        decimal_words = self._convert_tens(decimal_val)
+        
         return f"{main_words} {main_unit} {decimal_words} {sub_unit}"
-
+    
     def convert_percentage(self, number: float) -> str:
         """Convert percentage to words.
         
@@ -212,6 +218,11 @@ class IndonesianNumberNormalizer:
         """
         try:
             hours, minutes = map(int, time_str.split(":"))
+
+            # Validate time
+            if hours < 0 or hours > 23 or minutes < 0 or minutes > 59:
+                return time_str
+
             result = []
 
             # Convert hours to 12-hour format and determine period
@@ -308,13 +319,15 @@ class IndonesianNumberNormalizer:
             
             if not decimal_str:  # No decimal part
                 return self.number_to_words(integer_part)
-                
-            integer_words = self.number_to_words(integer_part)
-            decimal_words = " ".join(UNITS[int(d)] for d in decimal_str if d != '0')
             
-            if decimal_words:
-                return f"{integer_words} koma {decimal_words}"
-            return integer_words
+            # Preserve leading zeros by getting the correct number of decimals
+            original_decimal_str = str(number).split('.')[1]
+            decimal_words = []
+            for d in original_decimal_str:
+                decimal_words.append(UNITS[int(d)])
+            
+            integer_words = self.number_to_words(integer_part)
+            return f"{integer_words} koma {' '.join(decimal_words)}"
         except (ValueError, decimal.InvalidOperation):
             return str(number)
 
@@ -331,7 +344,7 @@ class IndonesianNumberNormalizer:
         if not matches:
             return text
 
-        # Process matches in reverse order to maintain string indices
+        # Process matches in reverse order
         result = text
         for match in reversed(matches):
             try:
@@ -346,9 +359,16 @@ class IndonesianNumberNormalizer:
                     replacement = self.convert_time(match.value)
                 elif match.type == "decimal":
                     number = float(match.original.replace(',', '.'))
-                    replacement = self.convert_decimal_number(number)
-                else:  # integer
-                    replacement = self.number_to_words(match.value)
+                    if match.original.startswith('-'):
+                        replacement = f"minus {self.convert_decimal_number(abs(number))}"
+                    else:
+                        replacement = self.convert_decimal_number(number)
+                elif match.type == "integer":
+                    # Handle negative numbers
+                    if match.original.startswith('-'):
+                        replacement = f"minus {self.number_to_words(abs(match.value))}"
+                    else:
+                        replacement = self.number_to_words(match.value)
 
                 result = result[:match.start] + replacement + result[match.end:]
             except (ValueError, decimal.InvalidOperation):
