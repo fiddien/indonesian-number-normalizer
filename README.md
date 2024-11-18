@@ -1,79 +1,115 @@
-# Indonesian Number Normalizer
+# Indonesian Number Normalizer 🔢
 
-A Python package for converting numbers to Indonesian words. This package is particularly useful for Text-to-Speech (TTS) preprocessing where numbers need to be converted to their word representations.
+Convert numbers to Indonesian words for Text-to-Speech preprocessing.
 
-## Features
+[![PyPI version](https://badge.fury.io/py/indonesian-number-normalizer.svg)](https://badge.fury.io/py/indonesian-number-normalizer)
+[![Tests](https://github.com/fiddien/indonesian-number-normalizer/actions/workflows/python-package.yml/badge.svg)](https://github.com/fiddien/indonesian-number-normalizer/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- Convert numbers to Indonesian words
-- Support for:
-  - Integers
-  - Decimal numbers
-  - Currency (IDR, USD, EUR)
-  - Percentages
-  - Time
-  - Ordinal numbers
-- Automatic number detection in text
-- Comprehensive text normalization
+## Overview
 
-## Installation
+Transform numeric text into natural Indonesian words:
+
+```python
+"Harga saham naik 2,5% menjadi Rp4.150"
+↓
+"Harga saham naik dua koma lima persen menjadi empat ribu seratus lima puluh rupiah"
+```
+
+## Features 🌟
+
+- **Numbers**: Integers, decimals, negatives
+- **Currency**: IDR, USD, EUR
+- **Formats**: Percentages, time, ordinals  
+- **Text Processing**: Automatic number detection and normalization
+
+## Installation 📦
 
 ```bash
 pip install indonesian-number-normalizer
 ```
 
-## Quick Start
+## Quick Usage 🚀
 
 ```python
 from indonesian_number_normalizer import create_normalizer
 
-# Create normalizer instance
 normalizer = create_normalizer()
 
-# Convert simple numbers
-print(normalizer.number_to_words(1234))  # "seribu dua ratus tiga puluh empat"
+# Basic numbers
+normalizer.number_to_words(1234)  
+# "seribu dua ratus tiga puluh empat"
 
-# Convert currency
-print(normalizer.convert_currency(4150))  # "empat ribu seratus lima puluh rupiah"
+# Currency
+normalizer.convert_currency(4150)  
+# "empat ribu seratus lima puluh rupiah"
 
-# Normalize text containing numbers
+# Text normalization
 text = "Harga saham naik 2,5% menjadi Rp4.150 per lembar."
-normalized = normalizer.normalize_text(text)
-print(normalized)  # "Harga saham naik dua koma lima persen menjadi empat ribu seratus lima puluh rupiah per lembar."
+normalizer.normalize_text(text)
+# "Harga saham naik dua koma lima persen menjadi empat ribu seratus lima puluh rupiah per lembar."
 ```
 
-## Advanced Usage
+## Advanced Usage 🛠️
 
-### Currency Conversion
+### Currency
+
 ```python
-# Indonesian Rupiah
-normalizer.convert_currency(1500000)  # "satu juta lima ratus ribu rupiah"
-
-# US Dollar
-normalizer.convert_currency(1500.50, currency="USD")  # "seribu lima ratus dolar lima puluh sen"
-
-# Euro
-normalizer.convert_currency(1500.50, currency="EUR")  # "seribu lima ratus euro lima puluh sen"
+# Multiple currency support
+normalizer.convert_currency(1500000)      # IDR
+normalizer.convert_currency(1500.50, "USD")  # USD
+normalizer.convert_currency(1500.50, "EUR")  # EUR
 ```
 
-### Time Conversion
+### Time
+
 ```python
-normalizer.convert_time("09:30")  # "sembilan lewat tiga puluh menit"
+normalizer.convert_time("09:30")  
+# "sembilan lewat tiga puluh menit"
 ```
 
-### Percentage Conversion
+### Percentages & Ordinals
+
 ```python
 normalizer.convert_percentage(2.5)  # "dua koma lima persen"
+normalizer.convert_ordinal(3)       # "ketiga"
 ```
 
-### Ordinal Numbers
-```python
-normalizer.convert_ordinal(3)  # "ketiga"
+## Development 🔧
+
+```bash
+# Clone repository
+git clone https://github.com/fiddien/indonesian-number-normalizer.git
+cd indonesian-number-normalizer
+
+# Install development dependencies
+pip install -e ".[test]"
+
+# Run tests
+pytest
 ```
 
-## Contributing
+## Contributing 🤝
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome!
 
-## License
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## License 📄
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Citation 📚
+
+```bibtex
+@software{indonesian_number_normalizer,
+  title = {Indonesian Number Normalizer},
+  author = {Ilma Aliya Fiddien},
+  year = {2024},
+  url = {https://github.com/fiddien/indonesian-number-normalizer}
+}
+```
